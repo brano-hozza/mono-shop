@@ -4,17 +4,17 @@ import {
   Logger,
 } from '@nestjs/common';
 import { User } from '@supabase/supabase-js';
-import { Request } from 'express';
-import { Supabase } from './common/supabase';
+import { Supabase } from '../common/supabase';
 
 @Injectable()
-export class AppService {
-  private readonly logger = new Logger(AppService.name);
+export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(private readonly supabase: Supabase) {}
 
-  async getHello(request: Request): Promise<User> {
+  async signIn(access_token: string, refresh_token: string): Promise<User> {
+    this.logger.debug({ access_token, refresh_token });
     const client = this.supabase.getClient();
-    this.logger.debug(request.query);
+    client.auth.setSession({ access_token, refresh_token });
     const { data, error } = await client.auth.getUser();
     if (error) {
       throw new InternalServerErrorException(error.message);
